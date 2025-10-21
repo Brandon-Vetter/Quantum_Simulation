@@ -1,0 +1,5 @@
+test_program.py
+sc1.py
+.python-version
+*.png
+__pycache__/
