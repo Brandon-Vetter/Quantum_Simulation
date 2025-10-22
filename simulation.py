@@ -37,6 +37,7 @@ class simulation:
         self.ra = (0.5*hbar_J/m0)*(dt/del_x**2)
         self.rd = dt/hbar_J
         self.abs = None
+        self.abs_func = None
         self.dt = dt
         self.del_x = del_x
         if sim_size != None:
