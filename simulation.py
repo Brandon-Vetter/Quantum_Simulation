@@ -50,6 +50,10 @@ class simulation:
         self.sim_time = 0
         self.KE_total = 0
         self.PE_total = 0
+        self.log = []
+        self.logging = False
+
+        self.sim_space = np.linspace(self.del_x, self.sim_size_spat, self.sim_size)
 
 
     def run(self, time=None, steps=None, save_each_step=False):
@@ -77,15 +81,18 @@ class simulation:
                     particle.time_initlize(self.sim_time)
             
             # run particles
+            ind = 0
             for particle in self.particles:
                 temp_particle_list = self.particles.copy()
                 temp_particle_list.remove(particle)
                 if temp_particle_list == []:
                     temp_particle_list.append(-1)
                 particle.fdtd(self.v_field_total, temp_particle_list, self.ra, self.rd, abs = self.abs)
-                particle.update_measurables(self.dt, self.del_x, self.v_field_total)
-            if save_each_step:
-                states.append((self.particles, self.v_field_total, (self.sim_time + (step+1)*self.dt, self.n_steps + step+1)))
+                measureables = particle.update_measurables(self.dt, self.del_x, self.v_field_total)
+                if self.logging:
+                    self.log[ind].append((self.sim_time, self.n_steps, self.particles, self.v_field_total, *measureables))
+                if save_each_step:
+                    states.append((self.sim_time, self.n_steps, self.particles, self.v_field_total, *measureables))
         
 
             self.n_steps += 1
@@ -103,6 +110,22 @@ class simulation:
         init_function.del_x = self.del_x
         particle.initialize(init_function)
         self.particles.append(particle)
+        self.log.append([]) 
+
+    def output_to_csv(self, name):
+        ind = 0
+        for log in self.log:
+            file = open(f"{ind}_{name}", "w")
+            file.write("sim_time,step,ptot,ke,pe,H\n")
+            for line in log:
+                line = [*line[0:2], *line[5:len(line)]]
+                line = list(map(lambda l : str(l), line))
+                file.write(",".join(line)+ "\n")
+            file.close()
+
+    def initize_abs(self, abs):
+        self.abs = abs.abs(self.sim_space)
+        self.abs_func = abs
 
     def add_vfield(self, v_field, time_function=None):
         self.v_fields.append(v_field)
