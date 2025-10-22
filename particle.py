@@ -116,23 +116,29 @@ class init_function:
 
 
 class gausian_init(init_function):
-    def __init__(self, lambd, sigma, loc):
+    def __init__(self, lambd, sigma, loc=0, pos=0):
         super().__init__()
-        self.location = loc
+        if loc == 0:
+            self.location = int(pos/self.del_x)
+        else:
+            self.location = loc
         self.real = lambda n : np.exp(-1.*((n-self.location)/sigma)**2)*np.cos(2*np.pi*(n-self.location)/lambd)
         self.imag = lambda n : np.exp(-1.*(((n-self.location)/sigma)**2))*np.sin(2*np.pi*(n-self.location)/lambd)
 
 
 class time_gausian_init(init_function):
-    def __init__(self, lambd, sigma, loc, Ein, time=0, steps=0):
+    def __init__(self, loc=0, pos=0, lambd=0, sigma=0, Ein=0, time=0, steps=0):
         super().__init__()
-        self.location = loc
+        if loc == 0:
+            self.location = int(pos/self.del_x)
+        elif pos == 0:
+            self.location = loc
+        
         self.lambd = lambd
         self.sigma = sigma
         self.E = Ein
+        self.start_time = time
         self.real = self.real
-
-
     def real(self, n):
         if n == self.location:
             
@@ -141,7 +147,14 @@ class time_gausian_init(init_function):
             return 0
     
     def time(self, c_time):
-        T_per = (h_nobar_J/(self.E*self.dt))
-        sig = .67*T_per
-        T = 2*sig
-        return np.exp(-1.*((c_time - T)/sig)**2)*np.cos(2*np.pi*(c_time - T)/T_per)
+        if self.lambd == 0:
+            self.lambd = (h_nobar_eV/(self.E))
+        
+        if self.sigma == 0:
+            self.sigma = .65*self.lambd
+
+        if self.start_time == 0:
+            self.start_time = 2.*self.sigma
+        
+        
+        return np.exp(-1.*((c_time - self.start_time)/self.sigma)**2)*np.cos((2*np.pi*(c_time - self.start_time))/self.lambd)
