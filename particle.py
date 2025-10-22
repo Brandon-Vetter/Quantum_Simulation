@@ -45,15 +45,16 @@ class particle:
             self.pim[n] += self.init_function.time(time)*self.init_function.imag(n)
 
     @jit
-    def _fdtd(prl, pim, V, other_particles, ra, rd, sim_size, abs):
+    def _fdtd(prl, pim, V, other_particles, ra, rd, sim_size, abs, steps=1):
         # must be static or jit will come and shoot it
-        for n in range(sim_size-1):
-            prl[n] += -ra*(pim[n-1] - 2*pim[n] + pim[n+1]) + rd*V[n]*pim[n]
-            prl[n] *= abs[n]
-            
-        for n in range(sim_size-1):
-            pim[n] += ra*(prl[n-1] - 2*prl[n] + prl[n+1]) - rd*V[n]*prl[n]
-            pim[n] *= abs[n]
+        for step in range(steps):
+            for n in range(sim_size-1):
+                prl[n] += -ra*(pim[n-1] - 2*pim[n] + pim[n+1]) + rd*V[n]*pim[n]
+                prl[n] *= abs[n]
+                
+            for n in range(sim_size-1):
+                pim[n] += ra*(prl[n-1] - 2*prl[n] + prl[n+1]) - rd*V[n]*prl[n]
+                pim[n] *= abs[n]
 
     def fdtd(self, v_fields, other_particles, ra, rd, abs=None):
 
