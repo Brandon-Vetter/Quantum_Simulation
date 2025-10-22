@@ -57,7 +57,7 @@ class particle:
 
     def fdtd(self, v_fields, other_particles, ra, rd, abs=None):
 
-        if abs == None:
+        if abs is None:
             abs = np.ones(self.sim_size)
             
         particle._fdtd(self.prl, self.pim, v_fields, other_particles, ra, rd, self.sim_size, abs)
