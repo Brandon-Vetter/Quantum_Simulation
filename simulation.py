@@ -27,7 +27,7 @@ class simulation:
     example.  Should be inherited.
     """
 
-    def __init__(self, del_x = 0.1e-9, dt = 2e-17, fdtd = quantum.fdtd, sim_size = None, sim_length=None):
+    def __init__(self, del_x = 0.2e-9, dt = 8e-17, fdtd = quantum.fdtd, sim_size = None, sim_length=None):
         self.name = "default_sim"
         self.cache_dir = f"/tmp/quantum_sim/data/{self.name}/"
         self.output_dir = "images"
@@ -43,7 +43,7 @@ class simulation:
         if sim_size != None:
             self.sim_size = sim_size
         elif sim_size != None:
-            self.sim_size = sim_length*del_x
+            self.sim_size = int(sim_length/del_x)
         self.sim_size_spat = self.sim_size*del_x
 
         self.n_steps = 0
@@ -51,8 +51,7 @@ class simulation:
         self.KE_total = 0
         self.PE_total = 0
 
-        self.sim_space = np.linspace(self.del_x, self.del_x*self.sim_size, self.sim_size)
-    
+
     def run(self, time=None, steps=None, save_each_step=False):
         # run simulation for set time in ps
 
@@ -89,14 +88,14 @@ class simulation:
                 states.append((self.particles, self.v_field_total, (self.sim_time + (step+1)*self.dt, self.n_steps + step+1)))
         
 
-        self.n_steps += n_step
-        self.sim_time += n_step*self.dt
+            self.n_steps += 1
+            self.sim_time += self.dt
         
         if save_each_step:
             return states
         
         return self.particles, self.v_field_total, (self.sim_time, self.n_steps)
-    
+
     def initize_particle(self, particle, init_function):
         # initialize particles
         particle.sim_size = self.sim_size
