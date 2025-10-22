@@ -16,7 +16,7 @@ class particle:
         self.psi = 0
         self.init_function = None
         self.time_init = False
-        self.forour = False
+        self.forier = None
     
     def initialize(self, init_function):
         self.prl = np.zeros(self.sim_size)
@@ -73,6 +73,26 @@ class particle:
         self.pe = (np.conj(self.psi)*self.psi).real.dot(V)*J2eV
 
         self.E = self.pe + self.ke
+
+        return self.psi, self.ptot, self.ke, self.pe, self.E
+    
+
+    @jit
+    def _run_dft_at_point(prl, pri, point, E, forier, c_time):
+        for i in range(len(E)):
+            forier[i] += (prl[point] - pri[point])*np.exp((2*np.pi*E[i]/h_nobar_J)*c_time)
+
+    def run_dft_at_point(self, E_start, E_end, samples, point, c_time):
+        dt = (E_end - E_start)/samples
+        E = np.arange(E_start, E_end+dt, dt)
+        if self.forier is None:
+            self.forier = np.zeros(len(E))
+        
+        particle._run_dft_at_point(self.prl, self.pri, point, E, self.forier, c_time)
+        
+
+        
+        
 
 
 
