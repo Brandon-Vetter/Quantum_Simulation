@@ -27,7 +27,7 @@ class simulation:
     example.  Should be inherited.
     """
 
-    def __init__(self, del_x = 0.2e-9, dt = 8e-17, fdtd = quantum.fdtd, sim_size = None, sim_length=None):
+    def __init__(self, del_x = 0.1e-9, dt = 8e-17, fdtd = quantum.fdtd, sim_size = None, sim_length=None):
         self.name = "default_sim"
         self.cache_dir = f"/tmp/quantum_sim/data/{self.name}/"
         self.output_dir = "images"
@@ -65,7 +65,6 @@ class simulation:
 
     def run(self, time=None, steps=None, save_each_step=False):
         # run simulation for set time in ps
-
 
         states = []
         if steps == None:

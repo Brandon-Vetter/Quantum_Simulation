@@ -55,8 +55,9 @@ class particle:
             for n in range(sim_size-1):
                 pim[n] += ra*(prl[n-1] - 2*prl[n] + prl[n+1]) - rd*V[n]*prl[n]
                 pim[n] *= abs[n]
+        
 
-    def fdtd(self, v_fields, other_particles, ra, rd, abs=None):
+    def fdtd(self, v_fields, other_particles, ra, rd, abs=None, steps=1):
 
         if abs is None:
             abs = np.ones(self.sim_size)
