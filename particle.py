@@ -126,7 +126,7 @@ class gausian_init(init_function):
 
 
 class time_gausian_init(init_function):
-    def __init__(self, loc=0, pos=0, lambd=0, sigma=0, Ein=0, time=0, steps=0):
+    def __init__(self, loc=0, pos=0, lambd=0, sigma=0, Ein=0, pulse_length=.65, time=0, steps=0):
         super().__init__()
         if loc == 0:
             self.location = int(pos/self.del_x)
@@ -137,6 +137,7 @@ class time_gausian_init(init_function):
         self.sigma = sigma
         self.E = Ein
         self.start_time = time
+        self.pulse_length = pulse_length
         self.real = self.real
     def real(self, n):
         if n == self.location:
@@ -150,7 +151,7 @@ class time_gausian_init(init_function):
             self.lambd = (h_nobar_eV/(self.E))
         
         if self.sigma == 0:
-            self.sigma = .65*self.lambd
+            self.sigma = self.pulse_length*self.lambd
 
         if self.start_time == 0:
             self.start_time = 2.*self.sigma
