@@ -31,13 +31,13 @@ class simulation:
         self.name = "default_sim"
         self.cache_dir = f"/tmp/quantum_sim/data/{self.name}/"
         self.output_dir = "images"
+
+        # simulation setup
         self.particles = []
         self.v_fields = []
         self.v_field_total = np.zeros(sim_length)
         self.ra = (0.5*hbar_J/m0)*(dt/del_x**2)
         self.rd = dt/hbar_J
-        self.abs = None
-        self.abs_func = None
         self.dt = dt
         self.del_x = del_x
         if sim_size != None:
@@ -45,12 +45,20 @@ class simulation:
         elif sim_size != None:
             self.sim_size = int(sim_length/del_x)
         self.sim_size_spat = self.sim_size*del_x
+        self.sim_mid = int(self.sim_size/2)
+        self.sim_mid_spat = self.sim_mid*del_x
 
+        # abs setup
+        self.abs = None
+        self.abs_func = None
+
+        # measurables
         self.n_steps = 0
         self.sim_time = 0
         self.KE_total = 0
         self.PE_total = 0
-        self.log = []
+
+        # logging
         self.logging = False
         self.log = []
 
@@ -117,15 +125,6 @@ class simulation:
         
         return self.particles, self.v_field_total, (self.sim_time, self.n_steps)
 
-    def initize_particle(self, particle, init_function):
-        # initialize particles
-        particle.sim_size = self.sim_size
-        init_function.dt = self.dt
-        init_function.del_x = self.del_x
-        particle.initialize(init_function)
-        self.particles.append(particle)
-        self.log.append([]) 
-
     def output_to_csv(self, name):
         ind = 0
         for log in self.log:
@@ -137,7 +136,7 @@ class simulation:
                 file.write(",".join(line)+ "\n")
             file.close()
 
-    def initize_abs(self, abs):
+    def init_abs(self, abs):
         self.abs = abs.abs(self.sim_space)
         self.abs_func = abs
 
