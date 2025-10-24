@@ -43,4 +43,7 @@ def fdtd(prl, pim, n_step, ra, rd, V=None, pml=None, pml_args = []):
         pim[NN-2] = abc[NN-2]*pim[NN-2] + ra*(prl[NN-3] - 2*prl[NN-2] + prl[NN-1]) - rd*V[NN-2]*prl[NN-2]
 
     return prl, pim
+
+def normalize_dft(dft):
+    return np.abs(np.conj(dft)*dft)
                                                  
