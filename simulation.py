@@ -85,8 +85,9 @@ class simulation:
         for step in range(n_step):
             # V field calulation
             self.v_field_total = np.zeros(self.sim_size)
+            time_vfield = True
             for field in self.v_fields:
-                field.step(self.sim_time)
+                err_value = field.step(self.sim_time)
                 self.v_field_total += field.V_field
 
             # run time dependent initialization functions
@@ -96,12 +97,14 @@ class simulation:
             
             # run particles
             ind = 0
+
             for particle in self.particles:
                 temp_particle_list = self.particles.copy()
                 temp_particle_list.remove(particle)
                 if temp_particle_list == []:
                     temp_particle_list.append(-1)
-                particle.fdtd(self.v_field_total, temp_particle_list, self.ra, self.rd, abs = self.abs)
+                
+                particle.fdtd(self.v_field_total, temp_particle_list, self.ra, self.rd, abs = self.abs, steps=1)
                 measureables = particle.update_measurables(self.dt, self.del_x, self.v_field_total)
                 # if dft
                 if self._dft:
