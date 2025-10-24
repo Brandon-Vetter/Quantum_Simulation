@@ -1,5 +1,6 @@
 from constants import *
 import numpy as np
+import cmath
 from numba.experimental import jitclass
 from numba import types, jit
 
@@ -16,7 +17,6 @@ class particle:
         self.psi = 0
         self.init_function = None
         self.time_init = False
-        self.forier = None
     
     def initialize(self, init_function):
         self.prl = np.zeros(self.sim_size)
@@ -77,19 +77,18 @@ class particle:
 
         return self.psi, self.ptot, self.ke, self.pe, self.E
     
-
     @jit
-    def _run_dft_at_point(prl, pri, point, E, forier, c_time):
+    def _run_dft_at_point(prl, pim, point, E, forier, c_time):
         for i in range(len(E)):
-            forier[i] += (prl[point] - pri[point])*np.exp((2*np.pi*E[i]/h_nobar_J)*c_time)
+            forier[i] += (prl[point] - 1j*pim[point])*cmath.exp(-1j*(2*np.pi*E[i]/h_nobar_eV)*c_time)
+        return forier
 
-    def run_dft_at_point(self, E_start, E_end, samples, point, c_time):
-        dt = (E_end - E_start)/samples
-        E = np.arange(E_start, E_end+dt, dt)
-        if self.forier is None:
-            self.forier = np.zeros(len(E))
+    def run_dft_at_point(self, E, point, c_time):
+        forier = np.zeros(len(E), dtype=complex)
         
-        particle._run_dft_at_point(self.prl, self.pri, point, E, self.forier, c_time)
+        forier = particle._run_dft_at_point(self.prl, self.pim, point, E, forier, c_time)
+        return forier
+        
         
 
         

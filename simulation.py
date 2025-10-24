@@ -52,6 +52,13 @@ class simulation:
         self.PE_total = 0
         self.log = []
         self.logging = False
+        self.log = []
+
+        # dft
+        self._dft = False
+        self.dft_points = []
+        self.dfts = []
+        self.dft_E = []
 
         self.sim_space = np.linspace(self.del_x, self.sim_size_spat, self.sim_size)
 
@@ -89,6 +96,14 @@ class simulation:
                     temp_particle_list.append(-1)
                 particle.fdtd(self.v_field_total, temp_particle_list, self.ra, self.rd, abs = self.abs)
                 measureables = particle.update_measurables(self.dt, self.del_x, self.v_field_total)
+                # if dft
+                if self._dft:
+                    for i in range(len(self.dft_points)):
+                        self.dfts[i] += particle.run_dft_at_point(self.dft_E[i],
+                                                          self.dft_points[i], self.sim_time)
+
+                # calulate extra things
+                # if logging
                 if self.logging:
                     self.log[ind].append((self.sim_time, self.n_steps, self.particles, self.v_field_total, *measureables))
                 if save_each_step:
@@ -127,7 +142,35 @@ class simulation:
         self.abs = abs.abs(self.sim_space)
         self.abs_func = abs
 
-    def add_vfield(self, v_field, time_function=None):
+    def init_dft(self, start, samples, end=0, dt=0, loc=0, pos=0):
+        if loc == 0:
+            loc = int(pos/self.del_x)
+        self._dft = True
+        self.dft_points.append(loc)
+
+        if dt == 0:
+            dt = (end - start)/samples
+            self.dft_E.append(np.arange(start, end+dt, dt))
+        elif end == 0:
+            E = np.zeros(samples)
+            for d in range(samples):
+                E[d] = dt*(d+1)
+            self.dft_E.append(E)
+        self.dfts.append(np.zeros((len(self.dft_E[-1])), dtype=complex))
+
+    def init_particle(self, particle, init_function):
+        # initialize particles
+        particle.sim_size = self.sim_size
+        init_function.dt = self.dt
+        init_function.del_x = self.del_x
+        particle.initialize(init_function)
+        self.particles.append(particle)
+        self.log.append([]) 
+
+    def init_vfield(self, v_field):
+        v_field.sim_size = self.sim_size
+        v_field.del_x = self.del_x
+        v_field.init_eqt()
         self.v_fields.append(v_field)
 
     def draw_sim(self):
