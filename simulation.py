@@ -71,7 +71,7 @@ class simulation:
         self.sim_space = np.linspace(self.del_x, self.sim_size_spat, self.sim_size)
 
 
-    def run(self, time=None, steps=None, save_each_step=False):
+    def run(self, time=None, steps=None, save_each_step=False, show_progress=True, progress_update=10):
         # run simulation for set time in ps
 
         states = []
@@ -118,7 +118,13 @@ class simulation:
                     self.log[ind].append((self.sim_time, self.n_steps, self.particles, self.v_field_total, *measureables))
                 if save_each_step:
                     states.append((self.sim_time, self.n_steps, self.particles, self.v_field_total, *measureables))
-        
+                        
+            if show_progress and (step+1)%progress_update == 0:
+                persent = ((step+1)/n_step)*100
+                bar = "#"*int(persent) + " "*(100-int(persent))
+                print(f"{persent : .2f}% [{bar}]", end="\r")
+                if persent >= 100:
+                    print(" "*200, end="\r")
 
             self.n_steps += 1
             self.sim_time += self.dt
