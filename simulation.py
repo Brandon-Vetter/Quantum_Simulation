@@ -170,26 +170,7 @@ class simulation:
         v_field.del_x = self.del_x
         v_field.init_eqt()
         self.v_fields.append(v_field)
-
-    def draw_sim(self):
-        # allow user to make own drawing code
-        pass
-
-    def create_video(self):
-        pass
-
-    def _save(self):
-        if not os.isdir(self.cache_dir):
-            os.makedirs(self.cache_dir)
     
-    def _wipe(self):
-        if os.isdir(self.cache_dir):
-            os.rmdir(self.cache_dir)
-    
-    def sumerize(self):
-        # output the results and varables of the simulation in a csv compatable format
-        pass
-
 
 class Vfield:
     """
