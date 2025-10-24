@@ -176,12 +176,50 @@ class Vfield:
     """
     Base class for potential fields in the simulation
     """
-    def __init__(self, eqt):
-        self.V_field = eqt
-    
+    sim_size = 0
+    del_x = 0
+    def __init__(self, eqt = None):
+        self.eqt = eqt
+        self.V_field = None
+
+    def init_eqt(self):
+        self.V_field = self.eqt(self.sim_size)
+
     def step(self, time):
         pass
 
+
+class barrier(Vfield):
+    def __init__(self, height, length, loc, spatial=False):
+        eqt = lambda n, l, h, p : np.array([h*eV2J if (i >= p-int(l/2) and i <= p+int(l/2)) 
+                                            else 0.0 for i in range(n)])
+        self.spatial = spatial
+        self.loc = loc
+        self.height = height
+        self.length = length
+        super().__init__(eqt)
+
+    def init_eqt(self):
+        if self.spatial:
+            self.loc = int(self.loc/self.del_x)
+            self.length = int(self.length/self.del_x)
+        self.V_field = self.eqt(self.sim_size, self.length, self.height, self.loc)
+
+
+class well(barrier):
+    def __init__(self, height, length, loc, well_size, spatial=False):
+        super().__init__(height, length, loc, spatial)
+        self.well_size = well_size
+
+    def init_eqt(self):
+        if self.spatial:
+            self.well_size = self.del_x*self.well_size
+            self.loc = int(self.loc/self.del_x)
+            self.length = int(self.length/self.del_x)
+
+        hwell = int(self.well_size/2)
+        self.V_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - int(self.length/2))
+        self.V_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + int(self.length/2))
 
 class aabs:
     """
