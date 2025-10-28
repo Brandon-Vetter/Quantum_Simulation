@@ -48,9 +48,9 @@ class Simulation:
         self.sim_mid = int(self.sim_size/2)
         self.sim_mid_spat = self.sim_mid*del_x
 
-        # abs setup
-        self.abs = None
-        self.abs_func = None
+        # abc setup
+        self.abc = None
+        self.abc_func = None
 
         # measurables
         self.n_steps = 0
@@ -105,7 +105,7 @@ class Simulation:
                 if temp_particle_list == []:
                     temp_particle_list.append(-1)
                 
-                particle.fdtd(self.v_field_total, temp_particle_list, self.ra, self.rd, abs = self.abs, steps=1)
+                particle.fdtd(self.v_field_total, temp_particle_list, self.ra, self.rd, abc = self.abc, steps=1)
                 measureables = particle.update_measurables(self.dt, self.del_x, self.v_field_total)
                 # if dft
                 if self._dft:
@@ -146,9 +146,9 @@ class Simulation:
                 file.write(",".join(line)+ "\n")
             file.close()
 
-    def init_abs(self, abs):
-        self.abs = abs.abs(self.sim_space)
-        self.abs_func = abs
+    def init_abc(self, abc):
+        self.abc = abc.abc(self.sim_space)
+        self.abc_func = abc
 
     def init_dft(self, start, samples, end=0, dt=0, loc=0, pos=0):
         if loc == 0:

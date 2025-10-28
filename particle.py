@@ -44,23 +44,24 @@ class Particle:
             self.prl[n] += self.init_function.time(time)*self.init_function.real(n)
             self.pim[n] += self.init_function.time(time)*self.init_function.imag(n)
 
-    @jit
-    def _fdtd(prl, pim, V, other_particles, ra, rd, sim_size, abs, steps=1):
+    #@cuda.jit('void(float64[:,:], float64[:,:], float64[:], float64[:,:], float64[:], float64[:], float64[:], float64[:,:], float64[:])')
+    @njit(parallel=True)
+    def _fdtd(prl, pim, V, other_particles, ra, rd, sim_size, abc, steps=1):
         # must be static or jit will come and shoot it
         for step in range(steps):
             for n in range(sim_size-1):
                 prl[n] += -ra*(pim[n-1] - 2*pim[n] + pim[n+1]) + rd*V[n]*pim[n]
-                prl[n] *= abs[n]
+                prl[n] *= abc[n]
                 
             for n in range(sim_size-1):
                 pim[n] += ra*(prl[n-1] - 2*prl[n] + prl[n+1]) - rd*V[n]*prl[n]
-                pim[n] *= abs[n]
+                pim[n] *= abc[n]
         
 
-    def fdtd(self, v_fields, other_particles, ra, rd, abs=None, steps=1):
+    def fdtd(self, v_fields, other_particles, ra, rd, abc=None, steps=1):
 
-        if abs is None:
-            abs = np.ones(self.sim_size)
+        if abc is None:
+            abc = np.ones(self.sim_size)
             
         Particle._fdtd(self.prl, self.pim, v_fields, other_particles, ra, rd, self.sim_size, abc)
         
