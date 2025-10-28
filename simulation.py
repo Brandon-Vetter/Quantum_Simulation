@@ -180,93 +180,36 @@ class simulation:
         v_field.init_eqt()
         self.v_fields.append(v_field)
     
+    def save_sim(self, simname):
+        os.mkdir(simname)
+        os.chdir(simname)
 
-class Vfield:
-    """
-    Base class for potential fields in the simulation
-    """
-    sim_size = 0
-    del_x = 0
-    def __init__(self, eqt = None):
-        self.eqt = eqt
-        self.V_field = None
-
-    def init_eqt(self):
-        self.V_field = self.eqt(self.sim_size)
-
-    def step(self, time):
-        pass
-
-
-class barrier(Vfield):
-    def __init__(self, height, length, loc, spatial=False):
-        eqt = lambda n, l, h, p : np.array([h*eV2J if (i >= p-int(l/2) and i <= p+int(l/2)) 
-                                            else 0.0 for i in range(n)])
-        self.spatial = spatial
-        self.loc = loc
-        self.height = height
-        self.length = length
-        super().__init__(eqt)
-
-    def init_eqt(self):
-        if self.spatial:
-            self.loc = int(self.loc/self.del_x)
-            self.length = int(self.length/self.del_x)
-        self.V_field = self.eqt(self.sim_size, self.length, self.height, self.loc)
-
-
-class well(barrier):
-    def __init__(self, height, length, loc, well_size, spatial=False):
-        super().__init__(height, length, loc, spatial)
-        self.well_size = well_size
-
-    def init_eqt(self):
-        if self.spatial:
-            self.well_size = self.del_x*self.well_size
-            self.loc = int(self.loc/self.del_x)
-            self.length = int(self.length/self.del_x)
-
-        hwell = int(self.well_size/2)
-        self.V_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - int(self.length/2))
-        self.V_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + int(self.length/2))
-
-class aabs:
-    """
-    adds the barrier at the start and end of the sim to remove reflections
-    """
-    sim_space = None
-    def __init__(self, eqt_s, start, end_offset=0, eqt_e=None):
-        self.start_loc = start
-        if end_offset != 0:
-            self.end_loc = end_offset
-        else:
-            self.end_loc = start
+        sim_file = open(f"{simname}.sim", "w")
+        ind = 0
+        for par in self.particles:
+            par.save_particle(f"{simname}_{ind}")
+            ind += 1
         
-        self.start_eqt = eqt_s
-        if eqt_e == None:
-            self.end_eqt = eqt_s
-        else:
-            self.end_eqt = eqt_e
+        sim_data = {
+            "vfields" : list(map(lambda V : V.v_field, self.v_fields)),
+            "ra" : self.ra,
+            "rd" : self.rd,
+            "dt" : self.dt,
+            "del_x" : self.del_x,
+            "sim_size" : self.sim_size,
+            "n_steps" : self.n_steps,
+            "abc" : self.abc,
+            "dfts" : self.dfts,
+            "dft_E" : self.dft_E,
+            "dft_points" : self.dft_points,
+            "_dft" : self._dft
+        }
+        yaml.dump(sim_data, sim_file)
+        sim_file.close()
 
-    def abs(self, sim_space):
-        ret_abs = np.ones(len(sim_space))
-        for n in range(int(len(sim_space)/2)):
-            if n < self.start_loc:
-                ret_abs[n] = self.start_eqt(n)
-            if (len(sim_space)-1) - n > len(sim_space) - self.end_loc:
-                ret_abs[(len(sim_space)-1) - n] = self.end_eqt(n)
-        return ret_abs
 
-        
 
-class xabs(aabs):
-    """
-    abs normally used
-    """
 
-    def __init__(self, start, end_offset=0):
-        self.start = start
-        self.start_eqt = lambda n :1 - .5*((self.start_loc - n)/self.start_loc)**3
-        super().__init__(self.start_eqt, start)
+
 
 
