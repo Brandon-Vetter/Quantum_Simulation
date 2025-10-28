@@ -46,4 +46,12 @@ def fdtd(prl, pim, n_step, ra, rd, V=None, pml=None, pml_args = []):
 
 def normalize_dft(dft):
     return np.abs(np.conj(dft)*dft)
-                                                 
+
+def scale(V_drop, E_dft):
+    return np.sqrt((E_dft + V_drop)/E_dft)
+
+def transmission(input, output, scale=None):
+    if scale == None:
+        scale = np.ones(len(input))
+    
+    return np.abs(output/input)*scale
