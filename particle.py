@@ -2,7 +2,7 @@ from constants import *
 import numpy as np
 import cmath
 from numba.experimental import jitclass
-from numba import types, jit
+from numba import types, jit, cuda, njit
 
 
 class Particle:
@@ -79,7 +79,7 @@ class Particle:
 
         return self.psi, self.ptot, self.ke, self.pe, self.E
     
-    @jit
+    @njit(parallel=True)
     def _run_dft_at_point(prl, pim, point, E, forier, c_time):
         for i in range(len(E)):
             forier[i] += (prl[point] - 1j*pim[point])*cmath.exp(-1j*(2*np.pi*E[i]/h_nobar_eV)*c_time)
