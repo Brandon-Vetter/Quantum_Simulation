@@ -5,7 +5,7 @@ from numba.experimental import jitclass
 from numba import types, jit
 
 
-class particle:
+class Particle:
     def __init__(self):
         self.prl = 0
         self.pim = 0
@@ -62,7 +62,7 @@ class particle:
         if abs is None:
             abs = np.ones(self.sim_size)
             
-        particle._fdtd(self.prl, self.pim, v_fields, other_particles, ra, rd, self.sim_size, abs)
+        Particle._fdtd(self.prl, self.pim, v_fields, other_particles, ra, rd, self.sim_size, abc)
         
         
     def update_measurables(self, dt, dx, V):
@@ -87,7 +87,7 @@ class particle:
     def run_dft_at_point(self, E, point, c_time):
         forier = np.zeros(len(E), dtype=complex)
         
-        forier = particle._run_dft_at_point(self.prl, self.pim, point, E, forier, c_time)
+        forier = Particle._run_dft_at_point(self.prl, self.pim, point, E, forier, c_time)
         return forier
         
         

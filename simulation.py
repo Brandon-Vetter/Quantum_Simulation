@@ -20,7 +20,7 @@ from constants import *
 import quantum
 
 
-class simulation:
+class Simulation:
     """
     Default class for simulation. Contains the default structor for a simulation.
     Draws a basic 1D particle simulation as
@@ -88,7 +88,8 @@ class simulation:
             time_vfield = True
             for field in self.v_fields:
                 err_value = field.step(self.sim_time)
-                self.v_field_total += field.V_field
+                self.v_field_total += field.v_field
+                self.v_field_total_eV += J2eV*np.array(field.v_field)
 
             # run time dependent initialization functions
             for particle in self.particles:
