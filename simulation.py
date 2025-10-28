@@ -36,6 +36,7 @@ class Simulation:
         self.particles = []
         self.v_fields = []
         self.v_field_total = np.zeros(sim_length)
+        self.v_field_total_eV = np.zeros(sim_length)
         self.ra = (0.5*hbar_J/m0)*(dt/del_x**2)
         self.rd = dt/hbar_J
         self.dt = dt
@@ -85,6 +86,7 @@ class Simulation:
         for step in range(n_step):
             # V field calulation
             self.v_field_total = np.zeros(self.sim_size)
+            self.v_field_total_eV = np.zeros(self.sim_size)
             time_vfield = True
             for field in self.v_fields:
                 err_value = field.step(self.sim_time)
