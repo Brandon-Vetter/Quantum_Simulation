@@ -15,6 +15,7 @@ from numba import types, typed, cuda
 from numba.experimental import jitclass
 import os
 import pandas
+import yaml
 
 from constants import *
 import quantum
