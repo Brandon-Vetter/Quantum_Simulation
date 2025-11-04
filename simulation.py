@@ -175,6 +175,7 @@ class Simulation:
         particle.sim_size = self.sim_size
         init_function.dt = self.dt
         init_function.del_x = self.del_x
+        init_function.initialize()
         particle.initialize(init_function)
         self.particles.append(particle)
         self.log.append([]) 
