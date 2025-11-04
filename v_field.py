@@ -45,7 +45,7 @@ class Well(Barrier):
 
     def init_eqt(self):
         if self.spatial:
-            self.well_size = self.del_x*self.well_size
+            self.well_size = int(self.well_size/self.del_x)
             self.loc = int(self.loc/self.del_x)
             self.length = int(self.length/self.del_x)
 

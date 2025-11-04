@@ -75,7 +75,7 @@ class Simulation:
 
         states = []
         if steps == None:
-            n_step = time/self.dt
+            n_step = int(time/self.dt)
         elif time == None:
             n_step = steps
         else:
@@ -125,7 +125,7 @@ class Simulation:
                 bar = "#"*int(persent) + " "*(100-int(persent))
                 print(f"{persent : .2f}% [{bar}]", end="\r")
                 if persent >= 100:
-                    print(" "*200, end="\r")
+                    print(" "*200, end="\r\n")
 
             self.n_steps += 1
             self.sim_time += self.dt
