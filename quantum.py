@@ -56,3 +56,8 @@ def transmission(input, output, scale=None):
         scale = np.ones(len(input))
     
     return np.abs(output/input)*scale
+
+def load_sim(simname):
+    sim_ret = sim.Simulation()
+    sim_ret.load_sim(simname)
+    return sim_ret
