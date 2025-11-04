@@ -4,3 +4,5 @@ sc1.py
 *.png
 __pycache__/
 *.csv
+*.part
+*.sim
