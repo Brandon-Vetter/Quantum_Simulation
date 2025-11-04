@@ -28,10 +28,7 @@ class Simulation:
     example.  Should be inherited.
     """
 
-    def __init__(self, del_x = 0.1e-9, dt = 8e-17, fdtd = quantum.fdtd, sim_size = None, sim_length=None):
-        self.name = "default_sim"
-        self.cache_dir = f"/tmp/quantum_sim/data/{self.name}/"
-        self.output_dir = "images"
+    def __init__(self, del_x = 0.1e-9, dt = 8e-17, sim_size = None, sim_length=None):
 
         # simulation setup
         self.particles = []
