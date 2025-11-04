@@ -3,6 +3,8 @@ import numpy as np
 import cmath
 from numba.experimental import jitclass
 from numba import types, jit, cuda, njit
+import yaml
+import os
 
 
 class Particle:
@@ -97,12 +99,17 @@ class Particle:
 
         part_data = {
             "pim" : self.pim,
-            "prl" : self.prl,
+            "prl" : self.prl
         }
         yaml.dump(part_data, part_file)
         part_file.close()
         
+    def load_particle(self, particlename):
+        if not os.path.exists(particlename):
+            return None
         
-
-
-
+        part_file = open(particlename, "r")
+        part_data = yaml.load(part_file, Loader=yaml.UnsafeLoader)
+        self.pim = part_data["pim"]
+        self.prl = part_data["prl"]
+        part_file.close()

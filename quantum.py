@@ -8,6 +8,7 @@
 
 from numba import jit
 import numpy as np
+import simulation as sim
 
 def pml(NN, cells = 50):
     nabc = cells

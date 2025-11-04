@@ -15,9 +15,11 @@ from numba import types, typed, cuda
 from numba.experimental import jitclass
 import os
 import pandas
+import yaml
 
 from constants import *
-import quantum
+import particle
+import v_field
 
 
 class Simulation:
@@ -26,8 +28,13 @@ class Simulation:
     Draws a basic 1D particle simulation as
     example.  Should be inherited.
     """
+    sim_size = 0
+    sim_size_spat = 0
+    sim_mid = 0
+    sim_mid_spat = 0
+    sim_space = 0
 
-    def __init__(self, del_x = 0.1e-9, dt = 8e-17, fdtd = quantum.fdtd, sim_size = None, sim_length=None):
+    def __init__(self, del_x = 0.1e-9, dt = 8e-17, sim_size = None, sim_length=None):
         self.name = "default_sim"
         self.cache_dir = f"/tmp/quantum_sim/data/{self.name}/"
         self.output_dir = "images"
@@ -43,11 +50,15 @@ class Simulation:
         self.del_x = del_x
         if sim_size != None:
             self.sim_size = sim_size
-        elif sim_size != None:
+        elif sim_length != None:
             self.sim_size = int(sim_length/del_x)
-        self.sim_size_spat = self.sim_size*del_x
-        self.sim_mid = int(self.sim_size/2)
-        self.sim_mid_spat = self.sim_mid*del_x
+        
+        if sim_size != None or sim_length != None:
+
+            self.sim_size_spat = self.sim_size*del_x
+            self.sim_mid = int(self.sim_size/2)
+            self.sim_mid_spat = self.sim_mid*del_x
+            self.sim_space = np.linspace(self.del_x, self.sim_size_spat, self.sim_size)
 
         # abc setup
         self.abc = None
@@ -69,9 +80,16 @@ class Simulation:
         self.dfts = []
         self.dft_E = []
 
-        self.sim_space = np.linspace(self.del_x, self.sim_size_spat, self.sim_size)
-
-
+    def _calulate_total_vfields(self):
+        # V field calulation
+        self.v_field_total = np.zeros(self.sim_size)
+        self.v_field_total_eV = np.zeros(self.sim_size)
+        time_vfield = True
+        for field in self.v_fields:
+            err_value = field.step(self.sim_time)
+            self.v_field_total += field.v_field
+            self.v_field_total_eV += J2eV*np.array(field.v_field)
+    
     def run(self, time=None, steps=None, save_each_step=False, show_progress=True, progress_update=10):
         # run simulation for set time in ps
 
@@ -83,15 +101,9 @@ class Simulation:
         else:
             n_step = 1
 
+
         for step in range(n_step):
-            # V field calulation
-            self.v_field_total = np.zeros(self.sim_size)
-            self.v_field_total_eV = np.zeros(self.sim_size)
-            time_vfield = True
-            for field in self.v_fields:
-                err_value = field.step(self.sim_time)
-                self.v_field_total += field.v_field
-                self.v_field_total_eV += J2eV*np.array(field.v_field)
+            self._calulate_total_vfields()
 
             # run time dependent initialization functions
             for particle in self.particles:
@@ -121,7 +133,7 @@ class Simulation:
                     self.log[ind].append((self.sim_time, self.n_steps, self.particles, self.v_field_total, *measureables))
                 if save_each_step:
                     states.append((self.sim_time, self.n_steps, self.particles, self.v_field_total, *measureables))
-                        
+
             if show_progress and (step+1)%progress_update == 0:
                 persent = ((step+1)/n_step)*100
                 bar = "#"*int(persent) + " "*(100-int(persent))
@@ -184,7 +196,8 @@ class Simulation:
         self.v_fields.append(v_field)
     
     def save_sim(self, simname):
-        os.mkdir(simname)
+        if not os.path.isdir(simname):
+            os.mkdir(simname)
         os.chdir(simname)
 
         sim_file = open(f"{simname}.sim", "w")
@@ -195,8 +208,6 @@ class Simulation:
         
         sim_data = {
             "vfields" : list(map(lambda V : V.v_field, self.v_fields)),
-            "ra" : self.ra,
-            "rd" : self.rd,
             "dt" : self.dt,
             "del_x" : self.del_x,
             "sim_size" : self.sim_size,
@@ -209,7 +220,53 @@ class Simulation:
         }
         yaml.dump(sim_data, sim_file)
         sim_file.close()
+        os.chdir("..")
 
+    def load_sim(self, simname):
+        if not os.path.isdir(simname):
+            return None
+
+        os.chdir(simname)
+        sim_file = open(f"{simname}.sim", "r")
+
+
+
+        sim_data = yaml.load(sim_file, Loader=yaml.UnsafeLoader)
+
+        self.dt = sim_data["dt"]
+        self.del_x = sim_data["del_x"]
+        self.sim_size = sim_data["sim_size"]
+        self.sim_size_spat = self.sim_size*self.del_x
+        self.sim_mid = int(self.sim_size/2)
+        self.sim_mid_spat = self.sim_mid*self.del_x
+        self.n_steps = sim_data["n_steps"]
+        self.abc = sim_data["abc"]
+        self.dfts = sim_data["dfts"]
+        self.dft_E = sim_data["dft_E"]
+        self.dft_points = sim_data["dft_points"]
+        self._dft = sim_data["_dft"]
+        self.ra = (0.5*hbar_J/m0)*(self.dt/self.del_x**2)
+        self.rd = self.dt/hbar_J
+        self.v_fields = []
+        for field in sim_data["vfields"]:
+            vfield = v_field.Vfield()
+            vfield.v_field = field
+            self.v_fields.append(vfield)
+
+        self.sim_space = np.linspace(self.del_x, self.sim_size_spat, self.sim_size)
+
+        self._calulate_total_vfields()
+
+        for particle_name in os.listdir("."):
+            if ".part" not in particle_name:
+                continue
+
+            self.particles.append(particle.Particle())
+            self.particles[-1].load_particle(particle_name)
+            self.particles[-1].sim_size = self.sim_size
+            self.particles[-1].update_measurables(self.dt, self.del_x, self.v_field_total)
+        sim_file.close()
+        os.chdir("..")
 
 
 
