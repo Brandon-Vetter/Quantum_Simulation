@@ -150,6 +150,7 @@ class Simulation:
             file.close()
 
     def init_abc(self, abc):
+        abc.del_x = self.del_x
         self.abc = abc.abc(self.sim_space)
         self.abc_func = abc
 
