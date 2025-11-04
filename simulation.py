@@ -35,9 +35,6 @@ class Simulation:
     sim_space = 0
 
     def __init__(self, del_x = 0.1e-9, dt = 8e-17, sim_size = None, sim_length=None):
-        self.name = "default_sim"
-        self.cache_dir = f"/tmp/quantum_sim/data/{self.name}/"
-        self.output_dir = "images"
 
         # simulation setup
         self.particles = []
@@ -95,7 +92,7 @@ class Simulation:
 
         states = []
         if steps == None:
-            n_step = time/self.dt
+            n_step = int(time/self.dt)
         elif time == None:
             n_step = steps
         else:
@@ -139,7 +136,7 @@ class Simulation:
                 bar = "#"*int(persent) + " "*(100-int(persent))
                 print(f"{persent : .2f}% [{bar}]", end="\r")
                 if persent >= 100:
-                    print(" "*200, end="\r")
+                    print(" "*200, end="\r\n")
 
             self.n_steps += 1
             self.sim_time += self.dt
@@ -161,6 +158,7 @@ class Simulation:
             file.close()
 
     def init_abc(self, abc):
+        abc.del_x = self.del_x
         self.abc = abc.abc(self.sim_space)
         self.abc_func = abc
 
@@ -185,6 +183,7 @@ class Simulation:
         particle.sim_size = self.sim_size
         init_function.dt = self.dt
         init_function.del_x = self.del_x
+        init_function.initialize()
         particle.initialize(init_function)
         self.particles.append(particle)
         self.log.append([]) 
