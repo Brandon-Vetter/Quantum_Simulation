@@ -47,7 +47,7 @@ class Particle:
             self.pim[n] += self.init_function.time(time)*self.init_function.imag(n)
 
     #@cuda.jit('void(float64[:,:], float64[:,:], float64[:], float64[:,:], float64[:], float64[:], float64[:], float64[:,:], float64[:])')
-    @njit(parallel=True)
+    @jit
     def _fdtd(prl, pim, V, other_particles, ra, rd, sim_size, abc, steps=1):
         # must be static or jit will come and shoot it
         for step in range(steps):
@@ -81,7 +81,7 @@ class Particle:
 
         return self.psi, self.ptot, self.ke, self.pe, self.E
     
-    @njit(parallel=True)
+    @jit
     def _run_dft_at_point(prl, pim, point, E, forier, c_time):
         for i in range(len(E)):
             forier[i] += (prl[point] - 1j*pim[point])*cmath.exp(-1j*(2*np.pi*E[i]/h_nobar_eV)*c_time)
