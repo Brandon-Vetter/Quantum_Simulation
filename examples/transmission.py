@@ -13,52 +13,58 @@ import aabc
 
 
 # simulation settings
-Vgs_value = .5
-Vhms_value = .5
-Vds_value = 0#.05
-dft_point = 340
+Vgs_value = .2
+Vhms_value = .6
+Vds_value = .05
+dft_point = 60E-9
 sim_size = 400
-well_size = 100
-barrier_size = 6
-particle_starting_location = 100
-sim_run_time = 10000
-
+well_size = 10E-9
+barrier_size = 8E-10
+particle_starting_location = 25E-9
+input_run_time = .8E-12
+sim_run_time = 2E-12
+del_x = 2E-10
+abc_size = 10E-9
+barrier_height = .6
 
 # setup the output simulation
 
 # setup the V fields
-simout = sim.Simulation(sim_size=sim_size)
-V = v_field.Well(.5, barrier_size, simout.sim_mid, well_size)
-Vgs = v_field.V_pot(simout.sim_mid - well_size/2 - barrier_size, simout.sim_mid + well_size/2 + barrier_size, Vgs_value)
-Vhm = v_field.Harmonic(simout.sim_mid - well_size/2, Vhms_value ,end=simout.sim_mid + well_size/2)
-Vds = v_field.V_drop(simout.sim_mid - well_size/2 - barrier_size, simout.sim_mid + well_size/2 - barrier_size, -Vds_value)
+simout = sim.Simulation(sim_size=sim_size, del_x=del_x)
+V = v_field.Well(barrier_height, barrier_size, simout.sim_mid_spat, well_size, spatial=True)
+Vgs = v_field.V_pot(simout.sim_mid_spat - well_size/2 - barrier_size,
+                    simout.sim_mid_spat + well_size/2 + barrier_size, -Vgs_value, spatial=True)
+Vhm = v_field.Harmonic(simout.sim_mid_spat - well_size/2, Vhms_value,
+                       end=simout.sim_mid_spat + well_size/2, spatial=True)
+Vds = v_field.V_drop(simout.sim_mid_spat - well_size/2 - barrier_size,
+                     simout.sim_mid_spat + well_size/2 + barrier_size, -Vds_value, spatial=True)
 
-
+# uncomment for different Vfeild effects
 simout.init_vfield(V)
 #simout.init_vfield(Vgs)
-simout.init_vfield(Vhm)
+#simout.init_vfield(Vhm)
 #simout.init_vfield(Vds)
 
 # setup the ABC
-simout.init_abc(aabc.Xabc(50))
+simout.init_abc(aabc.Xabc(abc_size, spatial=True))
 
 # setup DFT
-simout.init_dft(0, 1000, end =.5, loc = dft_point)
+simout.init_dft(0, 1000, end =.5, pos = dft_point)
 
 # setup particle
-simout.init_particle(part.Particle(),init_function.Time_gausian_init(Ein=.27, loc=particle_starting_location))
+simout.init_particle(part.Particle(),init_function.Time_gausian_init(Ein=.27, pos=particle_starting_location))
 
 # setup the input simulation
-simin = sim.Simulation(sim_size=sim_size)
-simin.init_abc(aabc.Xabc(50))
-simin.init_dft(0, 1000, end =.5, loc = dft_point)
-simin.init_particle(part.Particle(),init_function.Time_gausian_init(Ein=.27, loc=particle_starting_location))
+simin = sim.Simulation(sim_size=sim_size, del_x=del_x)
+simin.init_abc(aabc.Xabc(abc_size, spatial=True))
+simin.init_dft(0, 1000, end =.5, pos = dft_point)
+simin.init_particle(part.Particle(),init_function.Time_gausian_init(Ein=.27, pos=particle_starting_location))
 
 # run the simulations
 print(f"running input simulation (1/2)")
-simin.run(steps=sim_run_time)
+simin.run(time=input_run_time)
 print("running output simulation (2/2)")
-simout.run(steps=sim_run_time)
+simout.run(time=sim_run_time)
 
 
 # graph the simulations
