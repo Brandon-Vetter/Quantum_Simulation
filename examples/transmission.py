@@ -68,7 +68,7 @@ plt.plot(simout.sim_space,simout.v_field_total_eV,'k', label="V_field")
 plt.plot(simout.sim_space,simout.particles[0].prl,'b', label="prl")
 plt.plot(simout.sim_space,simout.particles[0].pim,'r--', label="pim")
 Dft = np.zeros(simout.sim_size)
-Dft[dft_point] = .05
+Dft[quantum.dist_to_step(del_x, dft_point)] = .05
 plt.plot(simout.sim_space, Dft, 'k--')
 plt.grid()
 

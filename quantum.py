@@ -55,3 +55,29 @@ def transmission(input, output, scale=None):
         scale = np.ones(len(input))
     
     return np.abs(output/input)*scale
+
+def time_to_step(dt, time):
+    return int(time/dt)
+
+def step_to_time(dt, step):
+    return dt*step
+
+def dist_to_step(del_x, dist):
+    return int(dist/del_x)
+
+def step_to_dist(del_x, step):
+    return del_x*step
+
+def delta(x, loc, height):
+    y = np.zeros(len(x))
+    y[loc] = height
+
+def calulate_mod(start, end, particle):
+    psi = particle.prl + 1j*particle.pim
+    ind = start
+    mod = 0
+    while ind < end:
+        mod += psi[ind].conj*psi[ind]
+        ind += 1
+
+    return mod
