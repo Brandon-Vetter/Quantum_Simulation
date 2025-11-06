@@ -13,7 +13,8 @@ In the future there will be a script for this, as for now, here are the required
 | numpy |
 | matplotlib |
 | numba |
-| yaml |
+| pyyaml |
+| cmath |
 
 # How to run
 To run the program, it is best to start out with one of the examples.  To run an example, open the python file in spyder (or whatever python code editor you are using) and run the program. 

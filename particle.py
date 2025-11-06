@@ -1,11 +1,10 @@
 from constants import *
 import numpy as np
 import cmath
-import threading
+#import threading
 import yaml
 from numba.experimental import jitclass
 from numba import types, jit, cuda, njit
-import yaml
 import os
 
 
