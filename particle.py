@@ -54,12 +54,10 @@ class Particle:
         # must be static or jit will come and shoot it
         for step in range(steps):
             for n in range(sim_size-1):
-                prl[n] += -ra*(pim[n-1] - 2*pim[n] + pim[n+1]) + rd*V[n]*pim[n]
-                prl[n] *= abc[n]
+                prl[n] = abc[n]*prl[n] - ra*(pim[n-1] - 2*pim[n] + pim[n+1]) + rd*V[n]*pim[n]
                 
             for n in range(sim_size-1):
-                pim[n] += ra*(prl[n-1] - 2*prl[n] + prl[n+1]) - rd*V[n]*prl[n]
-                pim[n] *= abc[n]
+                pim[n] = abc[n]*pim[n] + ra*(prl[n-1] - 2*prl[n] + prl[n+1]) - rd*V[n]*prl[n]
         
 
     def fdtd(self, v_fields, other_particles, ra, rd, abc=None, steps=1):
