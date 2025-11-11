@@ -14,7 +14,7 @@ import aabc
 
 # simulation settings
 Vgs_value = .2
-Vhms_value = .6
+Vhms_value = 0.06
 Vds_value = .05
 dft_point = 60E-9
 sim_size = 400
@@ -42,7 +42,7 @@ Vds = v_field.V_drop(simout.sim_mid_spat - well_size/2 - barrier_size,
 # uncomment for different Vfeild effects
 simout.init_vfield(V)
 #simout.init_vfield(Vgs)
-#simout.init_vfield(Vhm)
+simout.init_vfield(Vhm)
 #simout.init_vfield(Vds)
 
 # setup the ABC

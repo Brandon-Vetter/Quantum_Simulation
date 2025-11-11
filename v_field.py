@@ -101,14 +101,15 @@ class V_drop(Vfield):
     
 
 class Harmonic(Vfield):
-    def __init__(self, start, drop, size=0, end=0, spatial=False):
+    def __init__(self, start, Ein, size=0, end=0, drop = None, spatial=False):
 
         self.start = start
         self.end = end
-        self.drop = drop*eV2J
+        self.Ein = Ein*eV2J
         self.size = size
         self.mid = self.start + (self.end - self.start)/2
         self.spatial = spatial
+        self.drop = drop
         eqt = lambda n, s, m, e, d, sl: [sl*(i-m)**2 - d if i >= s and i <= e else 0 for i in range(n)]
         super().__init__(eqt)
 
@@ -126,7 +127,10 @@ class Harmonic(Vfield):
             self.end = self.start + self.size
         else:
             self.size = self.end - self.start
-        slope = self.drop/(self.end - self.mid)**2
+        slope = .5*m0*((self.Ein/hbar_J)**2*(self.del_x**2))
+        if self.drop == None:
+            self.drop = slope*(self.mid - self.start)**2
+        
 
         self.v_field = self.eqt(self.sim_size, self.start, self.mid, self.end, self.drop, slope)
 
