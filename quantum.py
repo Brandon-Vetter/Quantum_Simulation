@@ -1,10 +1,12 @@
-###############################################################################
-#
-# quantum.py
-# 
-# @Function: contains all the functions used for quantum mechanics
-#
-###############################################################################
+"""quantum.quantum
+
+Helper functions used when building a simulation.
+
+:filename: quantum.py
+:author: Brandon Vetter <brandon.w.vetter@gmail.com>
+:license: Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>
+:summary: This module contains the helper functions for building simulations.
+"""
 
 from numba import jit
 import numpy as np
