@@ -14,18 +14,18 @@ import aabc
 
 # simulation settings
 Vgs_value = .2
-Vhms_value = .6
+Vhms_value = 0.06
 Vds_value = .05
 dft_point = 60E-9
 sim_size = 400
-well_size = 10E-9
+well_size = 5E-9
 barrier_size = 8E-10
 particle_starting_location = 25E-9
 input_run_time = .8E-12
-sim_run_time = 2E-12
+sim_run_time = 3E-12
 del_x = 2E-10
 abc_size = 10E-9
-barrier_height = .6
+barrier_height = .2
 
 # setup the output simulation
 

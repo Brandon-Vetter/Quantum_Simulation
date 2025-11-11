@@ -1,10 +1,39 @@
-###############################################################################
-#
-# constants.py
-#
-# @Function: The purpose of this file is to define the commonly used varables
-# used for quantum mechanics
-###############################################################################
+"""quantum.constants
+
+Physical and simulation constants used throughout the project.
+
+:filename: constants.py
+:author: Brandon Vetter <brandon.w.vetter@gmail.com>
+:license: Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>
+:summary: Centralized physical constants and semiconductor effective masses
+    used by the simulations.
+
+This module centralizes commonly used physical constants (with units)
+and a few semiconductor effective-mass values used by the simulations.
+
+Constants
+---------
+- ``hbar_J``: reduced Planck constant in J*s
+- ``hbar_eV``: reduced Planck constant in eV*s
+- ``h_nobar_eV``: Planck constant (not reduced) in eV*s
+- ``h_nobar_J``: Planck constant (not reduced) in J*s
+- ``m0``: electron rest mass in kg
+- ``meff``: effective mass used in simulations (defaults to ``m0``)
+- ``ecoul``: elementary charge in Coulombs
+- ``epsz``: vacuum permittivity (in SI units)
+- ``eV2J``: factor to convert eV -> Joules
+- ``J2eV``: factor to convert Joules -> eV
+- ``G0``: quantum conductance in microSiemens
+
+Semiconductor effective masses (relative to ``m0``)
+ - ``Si``: silicon effective mass (m*/m0)
+ - ``GaAs``: gallium-arsenide effective mass (m*/m0)
+ - ``Ge``: germanium effective mass (m*/m0)
+
+Note: numeric values are approximate and chosen for quick simulations and
+examples; use higher-precision or library-provided constants for production
+calculations when needed.
+"""
 
 from enum import Enum
 

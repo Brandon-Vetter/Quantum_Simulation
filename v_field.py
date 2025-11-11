@@ -23,7 +23,7 @@ class Vfield:
 
 class Barrier(Vfield):
     def __init__(self, height, length, loc, spatial=False):
-        eqt = lambda n, l, h, p : np.array([h*eV2J if (i >= p-int(l/2) and i <= p+int(l/2)) 
+        eqt = lambda n, l, h, p : np.array([h*eV2J if (i >= p-round(l/2) and i <= p+round(l/2)) 
                                             else 0.0 for i in range(n)])
         self.spatial = spatial
         self.loc = loc
@@ -33,8 +33,8 @@ class Barrier(Vfield):
 
     def init_eqt(self):
         if self.spatial:
-            self.loc = int(self.loc/self.del_x)
-            self.length = int(self.length/self.del_x)
+            self.loc = round(self.loc/self.del_x)
+            self.length = round(self.length/self.del_x)
         self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc)
 
 
@@ -45,13 +45,13 @@ class Well(Barrier):
 
     def init_eqt(self):
         if self.spatial:
-            self.well_size = int(self.well_size/self.del_x)
-            self.loc = int(self.loc/self.del_x)
-            self.length = int(self.length/self.del_x)
+            self.well_size = round(self.well_size/self.del_x)
+            self.loc = round(self.loc/self.del_x)
+            self.length = round(self.length/self.del_x)
 
-        hwell = int(self.well_size/2)
-        self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - int(self.length/2))
-        self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + int(self.length/2))
+        hwell = round(self.well_size/2)
+        self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - round(self.length/2))
+        self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + round(self.length/2))
 
 
 class V_pot(Vfield):
@@ -65,8 +65,8 @@ class V_pot(Vfield):
     
     def init_eqt(self):
         if self.spatial:
-            self.start = int(self.start/self.del_x)
-            self.end = int(self.end/self.del_x)
+            self.start = round(self.start/self.del_x)
+            self.end = round(self.end/self.del_x)
         
         self.v_field = self.eqt(self.sim_size, self.start, self.end, self.value)
     
@@ -81,8 +81,8 @@ class V_drop(Vfield):
 
     def init_eqt(self):
         if self.spatial:
-            self.start = int(self.start/self.del_x)
-            self.end = int(self.end/self.del_x)
+            self.start = round(self.start/self.del_x)
+            self.end = round(self.end/self.del_x)
         
         slope = self.drop/(self.end - self.start)
         self.v_field = self.eqt(self.sim_size, self.start, self.end, slope, self.drop)
@@ -101,32 +101,36 @@ class V_drop(Vfield):
     
 
 class Harmonic(Vfield):
-    def __init__(self, start, drop, size=0, end=0, spatial=False):
+    def __init__(self, start, Ein, size=0, end=0, drop = None, spatial=False):
 
         self.start = start
         self.end = end
-        self.drop = drop*eV2J
+        self.Ein = Ein*eV2J
         self.size = size
         self.mid = self.start + (self.end - self.start)/2
         self.spatial = spatial
+        self.drop = drop
         eqt = lambda n, s, m, e, d, sl: [sl*(i-m)**2 - d if i >= s and i <= e else 0 for i in range(n)]
         super().__init__(eqt)
 
     def init_eqt(self):
         if self.spatial:
-            self.end = int(self.end/self.del_x)
-            self.start = int(self.start/self.del_x)
-            self.size = int(self.size/self.del_x)
-            self.mid = int(self.mid/self.del_x)
+            self.end = round(self.end/self.del_x)
+            self.start = round(self.start/self.del_x)
+            self.size = round(self.size/self.del_x)
+            self.mid = round(self.mid/self.del_x)
         
-        self.mid = int(self.mid)
+        self.mid = round(self.mid)
         if self.end == 0:
             self.mid = self.start
-            self.start = int(self.mid - self.size/2)
+            self.start = round(self.mid - self.size/2)
             self.end = self.start + self.size
         else:
             self.size = self.end - self.start
-        slope = self.drop/(self.end - self.mid)**2
+        slope = .5*m0*((self.Ein/hbar_J)**2*(self.del_x**2))
+        if self.drop == None:
+            self.drop = slope*(self.mid - self.start)**2
+        
 
         self.v_field = self.eqt(self.sim_size, self.start, self.mid, self.end, self.drop, slope)
 
@@ -139,15 +143,15 @@ class Vwell(V_drop):
 
     def init_eqt(self):
         if self.spatial:
-            self.end = int(self.end/self.del_x)
-            self.start = int(self.start/self.del_x)
-            self.size = int(self.size/self.del_x)
-            self.mid = int(self.mid/self.del_x)
+            self.end = round(self.end/self.del_x)
+            self.start = round(self.start/self.del_x)
+            self.size = round(self.size/self.del_x)
+            self.mid = round(self.mid/self.del_x)
         
-        self.mid = int(self.mid)
+        self.mid = round(self.mid)
         if self.end == 0:
             self.mid = self.start
-            self.start = int(self.mid - self.size/2)
+            self.start = round(self.mid - self.size/2)
             self.end = self.start + self.size
         else:
             self.size = self.end - self.start

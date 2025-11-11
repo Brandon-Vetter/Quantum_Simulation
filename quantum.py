@@ -1,14 +1,17 @@
-###############################################################################
-#
-# quantum.py
-# 
-# @Function: contains all the functions used for quantum mechanics
-#
-###############################################################################
+"""quantum.quantum
+
+Helper functions used when building a simulation.
+
+:filename: quantum.py
+:author: Brandon Vetter <brandon.w.vetter@gmail.com>
+:license: Apache License 2.0 <https://www.apache.org/licenses/LICENSE-2.0>
+:summary: This module contains the helper functions for building simulations.
+"""
 
 from numba import jit
 import numpy as np
 import simulation as sim
+from constants import *
 
 def pml(NN, cells = 50):
     nabc = cells
@@ -63,13 +66,13 @@ def load_sim(simname):
     return sim_ret
 
 def time_to_step(dt, time):
-    return int(time/dt)
+    return round(time/dt)
 
 def step_to_time(dt, step):
     return dt*step
 
 def dist_to_step(del_x, dist):
-    return int(dist/del_x)
+    return round(dist/del_x)
 
 def step_to_dist(del_x, step):
     return del_x*step
@@ -87,3 +90,36 @@ def calulate_mod(start, end, particle):
         ind += 1
 
     return mod
+
+def find_harmonic_diff(Ein, del_x, start=0, end=0, size=0, spatial=False):
+    if spatial:
+        start = round(start/del_x)
+        end = round(end/del_x)
+        size = round(size/del_x)
+    if end == 0:
+        mid = round(size/2)
+        end = size
+    if size == 0:
+        size = end - start
+        mid = round(size/2)
+    slope = .5*m0*(Ein/hbar_J)**2*(del_x**2)
+    drop = slope*(mid)**2
+
+    return drop
+
+def find_harmonic_Ein(drop, del_x, start=0, end=0, size=0, spatial=False):
+    if spatial:
+        start = round(start/del_x)
+        end = round(end/del_x)
+        size = round(size/del_x)
+    if end == 0:
+        mid = round(size/2)
+        end = mid
+    if size == 0:
+        size = end - start
+        mid = round(size/2)
+
+    slope = (drop*eV2J)/(mid)**2
+    Ein = np.sqrt(slope/(.5*m0*del_x**2))*hbar_J
+
+    return Ein*J2eV
