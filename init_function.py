@@ -16,7 +16,7 @@ class Init_function:
     
     def initialize(self):
         if self.loc == 0:
-            self.location = int(self.pos/self.del_x)
+            self.location = round(self.pos/self.del_x)
         else:
             self.location = self.loc
 

@@ -63,13 +63,13 @@ def load_sim(simname):
     return sim_ret
 
 def time_to_step(dt, time):
-    return int(time/dt)
+    return round(time/dt)
 
 def step_to_time(dt, step):
     return dt*step
 
 def dist_to_step(del_x, dist):
-    return int(dist/del_x)
+    return round(dist/del_x)
 
 def step_to_dist(del_x, step):
     return del_x*step

@@ -48,12 +48,12 @@ class Simulation:
         if sim_size != None:
             self.sim_size = sim_size
         elif sim_length != None:
-            self.sim_size = int(sim_length/del_x)
+            self.sim_size = round(sim_length/del_x)
         
         if sim_size != None or sim_length != None:
 
             self.sim_size_spat = self.sim_size*del_x
-            self.sim_mid = int(self.sim_size/2)
+            self.sim_mid = round(self.sim_size/2)
             self.sim_mid_spat = self.sim_mid*del_x
             self.sim_space = np.linspace(self.del_x, self.sim_size_spat, self.sim_size)
 
@@ -92,7 +92,7 @@ class Simulation:
 
         states = []
         if steps == None:
-            n_step = int(time/self.dt)
+            n_step = round(time/self.dt)
         elif time == None:
             n_step = steps
         else:
@@ -164,7 +164,7 @@ class Simulation:
 
     def init_dft(self, start, samples, end=0, dt=0, loc=0, pos=0):
         if loc == 0:
-            loc = int(pos/self.del_x)
+            loc = round(pos/self.del_x)
         self._dft = True
         self.dft_points.append(loc)
 
@@ -236,7 +236,7 @@ class Simulation:
         self.del_x = sim_data["del_x"]
         self.sim_size = sim_data["sim_size"]
         self.sim_size_spat = self.sim_size*self.del_x
-        self.sim_mid = int(self.sim_size/2)
+        self.sim_mid = round(self.sim_size/2)
         self.sim_mid_spat = self.sim_mid*self.del_x
         self.n_steps = sim_data["n_steps"]
         self.abc = sim_data["abc"]

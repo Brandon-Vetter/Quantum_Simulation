@@ -25,12 +25,12 @@ class Aabc:
 
     def abc(self, sim_space):
         if self.spatial:
-            self.start_loc = int(self.start_loc/self.del_x)
-            self.end_loc = int(self.end_loc/self.del_x)
+            self.start_loc = round(self.start_loc/self.del_x)
+            self.end_loc = round(self.end_loc/self.del_x)
 
 
         ret_abc = np.ones(len(sim_space))
-        for n in range(int(len(sim_space)/2)):
+        for n in range(round(len(sim_space)/2)):
             if n < self.start_loc:
                 ret_abc[n] = self.start_eqt(n, self.start_loc)
             if (len(sim_space)-1) - n > len(sim_space) - self.end_loc:
