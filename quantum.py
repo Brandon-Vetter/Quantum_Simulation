@@ -84,6 +84,7 @@ def step_to_dist(del_x, step):
 def delta(x, loc, height):
     y = np.zeros(len(x))
     y[loc] = height
+    return y
 
 def calulate_mod(start, end, particle):
     psi = particle.prl + 1j*particle.pim
