@@ -18,7 +18,7 @@ Vhms_value = 0.06
 Vds_value = .05
 dft_point = 26E-9
 sim_size = 200
-well_size = 36E-10
+well_size = 32E-10
 barrier_size = 8E-10
 particle_starting_location = 14E-9
 input_run_time = .8E-12
@@ -45,6 +45,7 @@ simout.init_vfield(V)
 #simout.init_vfield(Vhm)
 #simout.init_vfield(Vds)
 
+
 # setup the ABC
 simout.init_abc(aabc.Xabc(abc_size, spatial=True))
 
@@ -66,9 +67,8 @@ simin.run(time=input_run_time)
 print("running output simulation (2/2)")
 simout.run(time=sim_run_time)
 
-
 # graph the simulations
-plt.figure()
+ax = plt.figure()
 plt.subplot(2,1,1)
 plt.plot(simout.sim_space*1E9,simout.v_field_total_eV,'k', label="V_field")
 plt.plot(simout.sim_space*1E9,simout.particles[0].prl,'b', label="prl")
@@ -105,8 +105,8 @@ plt.xticks([0, .1, .2, .3, .4, .5])
 plt.yticks([i*.1 for i in range(0,11, 2)])
 plt.plot(simin.dft_E[0], trans)
 plt.xlabel("eV")
+ax.text(.5, .05, f"{simout.sim_time*1E12: .2f}ps")
 plt.tight_layout()
-plt.text(-.2, -.6, f"{simout.sim_time*1E12: .2f}ps")
 plt.savefig("transission.png")
 plt.show()
 

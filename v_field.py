@@ -60,12 +60,11 @@ class Well(Barrier):
         if self.length % 2 == 0:
             well_offset = 1
         if (self.well_size)%2 != 0:
-            self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - int(self.length/2) + well_offset)
-            self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + int(self.length/2))
-            print("test")
+            self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - round(self.length/2))
+            self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + round(self.length/2) + well_offset)
         else:
-            self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - int(self.length/2)+ well_offset)
-            self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell-1 + int(self.length/2))
+            self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell -1 - int(self.length/2) + well_offset)
+            self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + int(self.length/2))
 
 
 class V_pot(Vfield):
