@@ -54,10 +54,14 @@ def normalize_dft(dft):
 def scale(V_drop, E_dft):
     return np.sqrt((E_dft + V_drop)/E_dft)
 
-def transmission(input, output, scale=None):
-    if scale == None:
+def transmission(input, output, scale=None, max_output=.01):
+    if scale is None:
         scale = np.ones(len(input))
     
+    max_value = max(input)
+    max_value_per = max_value*max_output
+
+    output = [o if o>max_value_per else 0 for o in output]
     return np.abs(output/input)*scale
 
 def load_sim(simname):
