@@ -216,7 +216,7 @@ class Particle:
         :returns: forier (the updated complex accumulation array)
         """
         for i in range(len(E)):
-            forier[i] += (prl[point] - 1j*pim[point])*cmath.exp(-1j*(2*np.pi*E[i]/h_nobar_eV)*c_time)
+            forier[i] = (forier[i]+cmath.exp(-1j*(2*np.pi*E[i]/h_nobar_eV)*c_time))*(prl[point] - 1j*pim[point])
         return forier
 
     def run_dft_at_point(self, E, point, c_time):

@@ -16,16 +16,16 @@ import aabc
 Vgs_value = .2
 Vhms_value = 0.06
 Vds_value = .05
-dft_point = 60E-9
-sim_size = 400
-well_size = 5E-9
+dft_point = 26E-9
+sim_size = 200
+well_size = 36E-10
 barrier_size = 8E-10
-particle_starting_location = 25E-9
+particle_starting_location = 14E-9
 input_run_time = .8E-12
-sim_run_time = 3E-12
+sim_run_time = .8E-12
 del_x = 2E-10
 abc_size = 10E-9
-barrier_height = .2
+barrier_height = .3
 
 # setup the output simulation
 
@@ -70,30 +70,43 @@ simout.run(time=sim_run_time)
 # graph the simulations
 plt.figure()
 plt.subplot(2,1,1)
-plt.plot(simout.sim_space,simout.v_field_total_eV,'k', label="V_field")
-plt.plot(simout.sim_space,simout.particles[0].prl,'b', label="prl")
-plt.plot(simout.sim_space,simout.particles[0].pim,'r--', label="pim")
+plt.plot(simout.sim_space*1E9,simout.v_field_total_eV,'k', label="V_field")
+plt.plot(simout.sim_space*1E9,simout.particles[0].prl,'b', label="prl")
+plt.plot(simout.sim_space*1E9,simout.particles[0].pim,'r--', label="pim")
+plt.plot(simout.sim_space*1E9, quantum.delta(simout.sim_space, int(abc_size/simout.del_x), .3), '--k')
+plt.plot(simout.sim_space*1E9, quantum.delta(simout.sim_space, simout.sim_size - int(abc_size/simout.del_x), .3), '--k')
+plt.text(-.5, .25, f"abc")
+plt.text(35, .25, f"abc")
+plt.xlabel("nm")
 Dft = np.zeros(simout.sim_size)
 Dft[quantum.dist_to_step(del_x, dft_point)] = .05
-plt.plot(simout.sim_space, Dft, 'k--')
+plt.plot(simout.sim_space*1E9, Dft, 'k--')
+plt.yticks([i*.1 for i in range(0,4)])
+plt.ylabel("eV")
 plt.grid()
 
 plt.subplot(2,2,3)
 plt.grid()
 plt.title("DFT")
-plt.plot(simout.dft_E[0], quantum.normalize_dft(simout.dfts[0]), label="Dout")
-plt.plot(simin.dft_E[0], quantum.normalize_dft(simin.dfts[0]), label="Din")
+input_dft = quantum.normalize_dft(simin.dfts[0])
+output_dft = quantum.normalize_dft(simout.dfts[0])
+plt.plot(simout.dft_E[0], input_dft, label="Dout")
+plt.plot(simin.dft_E[0], output_dft, label="Din")
+plt.xticks([0, .1, .2, .3, .4, .5])
 plt.xlabel("eV")
-plt.legend(bbox_to_anchor=(1.15, .5), loc='upper left')
+plt.legend(loc='upper right')
 
 plt.subplot(2,2,4)
 plt.grid()
 plt.title("Transmission")
 scale = quantum.scale(Vds.drop, simin.dft_E[0])
-trans = quantum.transmission(simin.dfts[0], simout.dfts[0])
+trans = quantum.transmission(input_dft, output_dft, scale)
+plt.xticks([0, .1, .2, .3, .4, .5])
+plt.yticks([i*.1 for i in range(0,11, 2)])
 plt.plot(simin.dft_E[0], trans)
 plt.xlabel("eV")
 plt.tight_layout()
+plt.text(-.2, -.6, f"{simout.sim_time*1E12: .2f}ps")
 plt.savefig("transission.png")
 plt.show()
 

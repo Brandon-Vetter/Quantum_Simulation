@@ -53,7 +53,7 @@ class Time_gausian_init(Init_function):
     
     def time(self, c_time):
         if self.lambd == 0:
-            self.lambd = (h_nobar_eV/(self.E))
+            self.lambd = ((h_nobar_eV/(self.E)))
         
         if self.sigma == 0:
             self.sigma = self.pulse_length*self.lambd
@@ -62,4 +62,4 @@ class Time_gausian_init(Init_function):
             self.start_time = 2.*self.sigma
         
         
-        return np.exp(-1.*((c_time - self.start_time)/self.sigma)**2)*np.cos((2*np.pi*(c_time - self.start_time))/self.lambd)
+        return np.exp(-1.*((c_time - self.start_time)/self.sigma)**2)*np.cos(((2*np.pi)/self.lambd)*(c_time - self.start_time))

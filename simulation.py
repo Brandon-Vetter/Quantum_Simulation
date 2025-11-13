@@ -176,11 +176,6 @@ class Simulation:
 
         for step in range(n_step):
             self._calulate_total_vfields()
-
-            # run time dependent initialization functions
-            for particle in self.particles:
-                if particle.time_init:
-                    particle.time_initlize(self.sim_time)
             
             # run particles
             ind = 0
@@ -198,6 +193,9 @@ class Simulation:
                     for i in range(len(self.dft_points)):
                         self.dfts[i] += particle.run_dft_at_point(self.dft_E[i],
                                                           self.dft_points[i], self.sim_time)
+                
+                if particle.time_init:
+                    particle.time_initlize(self.sim_time)
 
                 # calulate extra things
                 # if logging
@@ -251,7 +249,7 @@ class Simulation:
         self.abc = abc.abc(self.sim_space)
         self.abc_func = abc
 
-    def init_dft(self, start, samples, end=0, dt=0, loc=0, pos=0):
+    def init_dft(self, start, samples, end=0, d_e=0, loc=0, pos=0):
         """
         Configure discrete Fourier transform (DFT) accumulation points.
 
@@ -269,14 +267,16 @@ class Simulation:
         self._dft = True
         self.dft_points.append(loc)
 
-        if dt == 0:
-            dt = (end - start)/samples
-            self.dft_E.append(np.arange(start, end+dt, dt))
-        elif end == 0:
+        if end == 0:
+            if d_e == 0:
+                d_e = 1/samples
             E = np.zeros(samples)
             for d in range(samples):
-                E[d] = dt*(d+1)
+                E[d] = d_e*(d+1)
             self.dft_E.append(E)
+        elif d_e == 0:
+            d_e = (end - start)/samples
+            self.dft_E.append(np.arange(start, end+d_e, d_e))
         self.dfts.append(np.zeros((len(self.dft_E[-1])), dtype=complex))
 
     def init_particle(self, particle, init_function):
