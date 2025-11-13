@@ -1,0 +1,2 @@
+class Glob:
+    debug = False
