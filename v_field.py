@@ -23,13 +23,19 @@ class Vfield:
 
 class Barrier(Vfield):
     def __init__(self, height, length, loc, spatial=False):
-        eqt = lambda n, l, h, p : np.array([h*eV2J if (i >= p-round(l/2) and i <= p+round(l/2)) 
-                                            else 0.0 for i in range(n)])
         self.spatial = spatial
         self.loc = loc
         self.height = height
         self.length = length
-        super().__init__(eqt)
+        super().__init__(self.eqt)
+
+    def eqt(self, n, l, h, p):
+        if l%2 == 0:
+            return np.array([h*eV2J if (i >= p-round(l/2) and i < p+round(l/2)) 
+                                            else 0.0 for i in range(n)])
+        else:
+            return np.array([h*eV2J if (i >= p-int(l/2) and i <= p+int(l/2)) 
+                                            else 0.0 for i in range(n)])
 
     def init_eqt(self):
         if self.spatial:
@@ -49,9 +55,17 @@ class Well(Barrier):
             self.loc = round(self.loc/self.del_x)
             self.length = round(self.length/self.del_x)
 
-        hwell = round(self.well_size/2)
-        self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - round(self.length/2))
-        self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + round(self.length/2))
+        hwell = int(self.well_size/2)
+        well_offset = 0
+        if self.length % 2 == 0:
+            well_offset = 1
+        if (self.well_size)%2 != 0:
+            self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - int(self.length/2) + well_offset)
+            self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell + int(self.length/2))
+            print("test")
+        else:
+            self.v_field = self.eqt(self.sim_size, self.length, self.height, self.loc - hwell - int(self.length/2)+ well_offset)
+            self.v_field += self.eqt(self.sim_size, self.length, self.height, self.loc + hwell-1 + int(self.length/2))
 
 
 class V_pot(Vfield):
