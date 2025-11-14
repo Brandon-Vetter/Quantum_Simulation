@@ -23,4 +23,4 @@ To run the program, it is best to start out with one of the examples.  To run an
 - Implement the hartree-folk for 1D
 - Implement 2D simulation
 - Implement the green's function for verfication
-- Fix Harmonic Ossilator so that it takes an $E_{ref}$ instead of just a depth and a length
+- Add sphinx for code documention
