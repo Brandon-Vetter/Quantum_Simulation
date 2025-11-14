@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("..") # need to import path above
+sys.path.append("../src") # need to import path above
 
 from constants import *
 import simulation as sim

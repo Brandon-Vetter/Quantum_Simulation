@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 
-sys.path.append("..")
+sys.path.append("../src") # need to import path above
 import quantum
 import simulation
 import particle
